@@ -17,6 +17,15 @@ function getUserById(int $id): ?array {
 
 function createUser(string $name, string $email, array $color_ids): int {
     $pdo = Database::getConnection();
+
+    $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+    $stmtCheck->execute([$email]);
+    $exists = (int)$stmtCheck->fetchColumn();
+
+    if ($exists > 0) {
+        throw new Exception("Já existe um usuário com o email '$email'.");
+    }
+
     $pdo->beginTransaction();
 
     $stmt = $pdo->prepare("INSERT INTO users (name, email) VALUES (?, ?)");

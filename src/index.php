@@ -1,4 +1,13 @@
 <?php
+
+session_start();
+if (!isset($_SESSION['visited'])) {
+    $_SESSION['visited'] = true;
+    header("Location: /seeder.php");
+    exit;
+    //famosa gamb pra rodar o seeder KKK
+}
+
 require_once "userService.php";
 
 $message = '';
@@ -22,13 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 createUser($name, $email, $colors);
                 $message = "Usuário criado com sucesso!";
-            }
-        }
-        catch (PDOException $e) {
-            if ($e->getCode() === '23000' && strpos($e->getMessage(), 'users.email') !== false) {
-                $error = "Este email já está cadastrado.";
-            } else {
-                $error = "Erro ao salvar usuário: " . $e->getMessage();
             }
         }
         catch (Exception $e) {
@@ -78,6 +80,8 @@ $colors = getAllColors();
 <body>
 
 <h1>CRUD Usuários com Vinculo de Cores</h1>
+
+<?= htmlspecialchars(getenv('APP_NAME')?: 'nao deu bom'); ?>
 
 <?php if ($error): ?>
     <p class="error"><?= htmlspecialchars($error) ?></p>

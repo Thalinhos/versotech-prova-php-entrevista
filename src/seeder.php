@@ -5,9 +5,11 @@ require_once "connection.php";
 try {
     $pdo = Database::getConnection();
 
+    $pdo->beginTransaction();
+
     $sqlCreateColors = "
         CREATE TABLE IF NOT EXISTS colors (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             name VARCHAR(50) NOT NULL
         )
     ";
@@ -15,7 +17,7 @@ try {
 
     $sqlCreateUsers = "
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
             email VARCHAR(100) NOT NULL UNIQUE
         )
@@ -24,21 +26,14 @@ try {
 
     $sqlCreateUsersColor = "
         CREATE TABLE IF NOT EXISTS user_colors (
-        user_id INTEGER NOT NULL,
-        color_id INTEGER NOT NULL,
-        PRIMARY KEY(user_id, color_id),
-        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY(color_id) REFERENCES colors(id) ON DELETE CASCADE
-    )";
+            user_id INTEGER NOT NULL,
+            color_id INTEGER NOT NULL,
+            PRIMARY KEY(user_id, color_id),
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY(color_id) REFERENCES colors(id) ON DELETE CASCADE
+        )
+    ";
     $pdo->exec($sqlCreateUsersColor);
-
-    $pdo->exec("DELETE FROM colors");
-    $pdo->exec("DELETE FROM users");
-    $pdo->exec("DELETE FROM user_colors");
-
-    $pdo->exec("DELETE FROM sqlite_sequence WHERE name='colors'");
-    $pdo->exec("DELETE FROM sqlite_sequence WHERE name='users'");
-    $pdo->exec("DELETE FROM sqlite_sequence WHERE name='user_colors'");
 
     $sqlInsertColors = "
         INSERT INTO colors (name) VALUES
@@ -60,11 +55,16 @@ try {
         (1, 2),
         (2, 2),
         (3, 3)
-
     ";
     $pdo->exec($sqlInsertUserColor);
 
-    echo "Tabelas criadas, zeradas e dados inseridos com sucesso!";
+    $pdo->commit();
+
+    header('Location: index.php');
+    exit;
 } catch (PDOException $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     echo "Erro: " . $e->getMessage();
 }

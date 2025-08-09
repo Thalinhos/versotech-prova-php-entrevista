@@ -7,6 +7,10 @@ try {
 
     $pdo->beginTransaction();
 
+    $pdo->exec("DROP TABLE IF EXISTS users CASCADE");
+    $pdo->exec("DROP TABLE IF EXISTS colors CASCADE");
+    $pdo->exec("DROP TABLE IF EXISTS user_colors CASCADE");
+
     $sqlCreateColors = "
         CREATE TABLE IF NOT EXISTS colors (
             id SERIAL PRIMARY KEY,

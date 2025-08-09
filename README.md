@@ -6,3 +6,7 @@
 docker compose up --build (e ser feliz) 
 ```
 
+```
+    http://localhost/ 
+```
+

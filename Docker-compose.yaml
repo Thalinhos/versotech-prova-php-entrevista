@@ -17,7 +17,7 @@ services:
       resources:
         limits:
           cpus: '0.4'
-          memory: 700M
+          memory: 600M
 
   app2:
     build: .
@@ -35,7 +35,7 @@ services:
       resources:
         limits:
           cpus: '0.4'
-          memory: 700M
+          memory: 600M
 
   db:
     image: postgres:13

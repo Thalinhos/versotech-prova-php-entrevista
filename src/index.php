@@ -5,7 +5,6 @@ if (!isset($_SESSION['visited'])) {
     $_SESSION['visited'] = true;
     header("Location: /seeder.php");
     exit;
-    //famosa gamb pra rodar o seeder KKK
 }
 
 require_once "userService.php";
@@ -60,6 +59,18 @@ if (isset($_GET['edit'])) {
 
 $users = getAllUsers();
 $colors = getAllColors();
+
+// Implementação de ETag para cache
+$etag = md5(json_encode($users) . json_encode($colors));
+
+header("ETag: \"$etag\"");
+header("Cache-Control: public");
+
+if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === "\"$etag\"") {
+    http_response_code(304);
+    exit;
+}
+// end ETag
 ?>
 
 <!DOCTYPE html>
